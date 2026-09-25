@@ -1,0 +1,20 @@
+# Maven and Java build output
+/target/
+*.class
+*.log
+
+# IDE files
+.idea/
+*.iml
+.settings/
+.classpath
+.project
+.vscode/
+
+# Local credentials and settings
+.env
+.env.*
+!.env.example
+**/application-local.properties
+**/application-secrets.properties
+MySQL-root-password.txt
