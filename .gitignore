@@ -1,0 +1,10 @@
+target/
+.idea/
+*.iml
+.env
+.env.*
+!.env.example
+*password*
+*.log
+.DS_Store
+/livrables/
