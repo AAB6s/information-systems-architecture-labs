@@ -1,0 +1,357 @@
+{
+  "info": {
+    "name": "AutoLoc TP06",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "DTO, validation et erreurs centralisées."
+  },
+  "item": [
+    {
+      "name": "Créer une agence",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/agences",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Agence Tunis\",\n  \"ville\": \"Tunis\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "pm.environment.set(\"idAgence\", pm.response.json().idAgence);",
+              "pm.expect(pm.response.json()).not.to.have.property(\"vehicules\");"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refuser un nom vide",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/agences",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"  \"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(400);",
+              "pm.expect(pm.response.json().erreurs).to.have.property(\"nom\");"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Créer un client",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/clients",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Amel\",\n  \"email\": \"amel@example.com\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "pm.environment.set(\"idClient\", pm.response.json().idClient);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refuser un email invalide",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/clients",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Amel\",\n  \"email\": \"invalide\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(400);",
+              "pm.expect(pm.response.json().erreurs).to.have.property(\"email\");"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Créer un équipement",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/equipements",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"libelle\": \"GPS\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "pm.environment.set(\"idEquipement\", pm.response.json().idEquipement);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Créer un véhicule",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/vehicules",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"immatriculation\": \"TP06-POSTMAN-001\",\n  \"marque\": \"Renault\",\n  \"modele\": \"Clio\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 75,\n  \"statut\": \"DISPONIBLE\",\n  \"agenceId\": {{idAgence}},\n  \"equipementIds\": [\n    {{idEquipement}}\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "pm.environment.set(\"idVehicule\", pm.response.json().idVehicule);",
+              "pm.expect(pm.response.json()).not.to.have.property(\"agence\");"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lire le véhicule DTO",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/vehicules/{{idVehicule}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "pm.expect(pm.response.json()).to.have.property(\"agenceId\");"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Créer une réservation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/reservations",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"dateDebut\": \"2026-11-10\",\n  \"dateFin\": \"2026-11-12\",\n  \"statut\": \"EN_ATTENTE\",\n  \"clientId\": {{idClient}},\n  \"vehiculeId\": {{idVehicule}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "pm.environment.set(\"idReservation\", pm.response.json().idReservation);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Créer un contrat et son paiement",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/contrats",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"dateSignature\": \"2026-11-07\",\n  \"montantTotal\": 150,\n  \"valide\": true,\n  \"reservationId\": {{idReservation}},\n  \"paiements\": [\n    {\n      \"montant\": 150,\n      \"datePaiement\": \"2026-11-07\",\n      \"modePaiement\": \"CARTE\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(201);",
+              "pm.environment.set(\"idContrat\", pm.response.json().idContrat);",
+              "pm.environment.set(\"idPaiement\", pm.response.json().paiements[0].idPaiement);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lire un paiement DTO",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/paiements/{{idPaiement}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(200);",
+              "pm.expect(pm.response.json()).to.have.property(\"contratId\");"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Référence absente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/employes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Sami\",\n  \"role\": \"AGENT\",\n  \"agenceId\": 999999\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.to.have.status(404);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

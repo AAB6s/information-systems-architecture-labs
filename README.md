@@ -1,15 +1,12 @@
-# AutoLoc — TP05
+# AutoLoc — TP06
 
-Java 17 · Spring Boot 3.5.16 · SpringDoc 2.8.17 · MySQL (`localhost:3307`, `autoloc_db`).
+DTO pour les réponses, validation des entrées et gestion des erreurs dans `GlobalExceptionHandler`.
 
-Définir `AUTOLOC_DB_PASSWORD`, puis :
+Pour tester sans MySQL :
 
 ```bash
-mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
+mvn clean verify
+mvn spring-boot:run "-Dspring-boot.run.profiles=demo" "-Dspring-boot.run.arguments=--server.port=18081"
 ```
 
-API : `http://localhost:8081/api` · Swagger : `/api/swagger-ui.html` · OpenAPI : `/api/v3/api-docs`.
-
-Importer les deux fichiers de [postman](postman), sélectionner **local**, puis lancer la collection **AutoLoc**.
-
-[Note de l’atelier](docs/api-notes.md) · Avant le rendu : `mvn clean`.
+API : `http://localhost:18081/api` · [Collection Postman](postman/AutoLoc-TP06.postman_collection.json) · [Environnement](postman/tp06-demo.postman_environment.json)

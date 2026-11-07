@@ -5,13 +5,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Reservation;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
+import tn.esprit.autoloc.repository.IClientRepository;
 import tn.esprit.autoloc.repository.IReservationRepository;
+import tn.esprit.autoloc.repository.IVehiculeRepository;
 import tn.esprit.autoloc.service.IReservationService;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements IReservationService {
     private final IReservationRepository reservationRepository;
+    private final IClientRepository clientRepository;
+    private final IVehiculeRepository vehiculeRepository;
 
     @Override
     public Reservation create(Reservation reservation) {
@@ -19,6 +23,10 @@ public class ReservationServiceImpl implements IReservationService {
             throw new IllegalArgumentException("Une nouvelle reservation ne doit pas avoir d'identifiant");
         }
         validate(reservation);
+        reservation.setClient(clientRepository.findById(reservation.getClient().getIdClient())
+                .orElseThrow(() -> new ResourceNotFoundException("Client", reservation.getClient().getIdClient())));
+        reservation.setVehicule(vehiculeRepository.findById(reservation.getVehicule().getIdVehicule())
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", reservation.getVehicule().getIdVehicule())));
         return reservationRepository.save(reservation);
     }
 
@@ -40,6 +48,10 @@ public class ReservationServiceImpl implements IReservationService {
         existing.setDateDebut(reservation.getDateDebut());
         existing.setDateFin(reservation.getDateFin());
         existing.setStatut(reservation.getStatut());
+        existing.setClient(clientRepository.findById(reservation.getClient().getIdClient())
+                .orElseThrow(() -> new ResourceNotFoundException("Client", reservation.getClient().getIdClient())));
+        existing.setVehicule(vehiculeRepository.findById(reservation.getVehicule().getIdVehicule())
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", reservation.getVehicule().getIdVehicule())));
         return reservationRepository.save(existing);
     }
 

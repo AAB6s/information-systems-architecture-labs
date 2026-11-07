@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import tn.esprit.autoloc.domain.Reservation;
+import jakarta.validation.Valid;
+import tn.esprit.autoloc.web.dto.ReservationRequest;
+import tn.esprit.autoloc.web.dto.ReservationResponse;
+import tn.esprit.autoloc.web.mapper.ReservationMapper;
 import tn.esprit.autoloc.service.IReservationService;
 
 @RestController
@@ -26,12 +29,13 @@ import tn.esprit.autoloc.service.IReservationService;
 @Tag(name = "Réservations", description = "Gestion des réservations")
 public class ReservationController {
     private final IReservationService service;
+    private final ReservationMapper mapper;
 
     @Operation(summary = "Lister les réservations")
     @ApiResponse(responseCode = "200", description = "Liste retournée")
     @GetMapping
-    public List<Reservation> findAll() {
-        return service.findAll();
+    public List<ReservationResponse> findAll() {
+        return service.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Operation(summary = "Consulter une réservation")
@@ -40,8 +44,8 @@ public class ReservationController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @GetMapping("/{id}")
-    public Reservation findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
-        return service.findById(id);
+    public ReservationResponse findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
+        return mapper.toResponse(service.findById(id));
     }
 
     @Operation(summary = "Créer une réservation")
@@ -51,8 +55,8 @@ public class ReservationController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Reservation create(@RequestBody Reservation entite) {
-        return service.create(entite);
+    public ReservationResponse create(@Valid @RequestBody ReservationRequest demande) {
+        return mapper.toResponse(service.create(mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Modifier une réservation")
@@ -62,9 +66,9 @@ public class ReservationController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @PutMapping("/{id}")
-    public Reservation update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
-            @RequestBody Reservation entite) {
-        return service.update(id, entite);
+    public ReservationResponse update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
+            @Valid @RequestBody ReservationRequest demande) {
+        return mapper.toResponse(service.update(id, mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Supprimer une réservation")

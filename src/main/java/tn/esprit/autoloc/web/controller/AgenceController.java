@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import tn.esprit.autoloc.domain.Agence;
+import jakarta.validation.Valid;
+import tn.esprit.autoloc.web.dto.AgenceRequest;
+import tn.esprit.autoloc.web.dto.AgenceResponse;
+import tn.esprit.autoloc.web.mapper.AgenceMapper;
 import tn.esprit.autoloc.service.IAgenceService;
 
 @RestController
@@ -26,12 +29,13 @@ import tn.esprit.autoloc.service.IAgenceService;
 @Tag(name = "Agences", description = "Gestion des agences")
 public class AgenceController {
     private final IAgenceService service;
+    private final AgenceMapper mapper;
 
     @Operation(summary = "Lister les agences")
     @ApiResponse(responseCode = "200", description = "Liste retournée")
     @GetMapping
-    public List<Agence> findAll() {
-        return service.findAll();
+    public List<AgenceResponse> findAll() {
+        return service.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Operation(summary = "Consulter une agence")
@@ -40,8 +44,8 @@ public class AgenceController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @GetMapping("/{id}")
-    public Agence findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
-        return service.findById(id);
+    public AgenceResponse findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
+        return mapper.toResponse(service.findById(id));
     }
 
     @Operation(summary = "Créer une agence")
@@ -51,8 +55,8 @@ public class AgenceController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Agence create(@RequestBody Agence entite) {
-        return service.create(entite);
+    public AgenceResponse create(@Valid @RequestBody AgenceRequest demande) {
+        return mapper.toResponse(service.create(mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Modifier une agence")
@@ -62,9 +66,9 @@ public class AgenceController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @PutMapping("/{id}")
-    public Agence update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
-            @RequestBody Agence entite) {
-        return service.update(id, entite);
+    public AgenceResponse update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
+            @Valid @RequestBody AgenceRequest demande) {
+        return mapper.toResponse(service.update(id, mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Supprimer une agence")

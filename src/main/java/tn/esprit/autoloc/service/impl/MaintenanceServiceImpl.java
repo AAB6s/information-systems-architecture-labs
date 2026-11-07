@@ -6,12 +6,14 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Maintenance;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IMaintenanceRepository;
+import tn.esprit.autoloc.repository.IVehiculeRepository;
 import tn.esprit.autoloc.service.IMaintenanceService;
 
 @Service
 @RequiredArgsConstructor
 public class MaintenanceServiceImpl implements IMaintenanceService {
     private final IMaintenanceRepository maintenanceRepository;
+    private final IVehiculeRepository vehiculeRepository;
 
     @Override
     public Maintenance create(Maintenance maintenance) {
@@ -19,6 +21,8 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
             throw new IllegalArgumentException("Une nouvelle maintenance ne doit pas avoir d'identifiant");
         }
         validate(maintenance);
+        maintenance.setVehicule(vehiculeRepository.findById(maintenance.getVehicule().getIdVehicule())
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", maintenance.getVehicule().getIdVehicule())));
         return maintenanceRepository.save(maintenance);
     }
 
@@ -40,6 +44,8 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
         existing.setDateDebut(maintenance.getDateDebut());
         existing.setDateFin(maintenance.getDateFin());
         existing.setDescription(maintenance.getDescription());
+        existing.setVehicule(vehiculeRepository.findById(maintenance.getVehicule().getIdVehicule())
+                .orElseThrow(() -> new ResourceNotFoundException("Vehicule", maintenance.getVehicule().getIdVehicule())));
         return maintenanceRepository.save(existing);
     }
 

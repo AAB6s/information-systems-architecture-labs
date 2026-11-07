@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Employe;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
+import tn.esprit.autoloc.repository.IAgenceRepository;
 import tn.esprit.autoloc.repository.IEmployeRepository;
 import tn.esprit.autoloc.service.IEmployeService;
 
@@ -12,6 +13,7 @@ import tn.esprit.autoloc.service.IEmployeService;
 @RequiredArgsConstructor
 public class EmployeServiceImpl implements IEmployeService {
     private final IEmployeRepository employeRepository;
+    private final IAgenceRepository agenceRepository;
 
     @Override
     public Employe create(Employe employe) {
@@ -19,6 +21,8 @@ public class EmployeServiceImpl implements IEmployeService {
             throw new IllegalArgumentException("Un nouvel employe ne doit pas avoir d'identifiant");
         }
         validate(employe);
+        employe.setAgence(agenceRepository.findById(employe.getAgence().getIdAgence())
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", employe.getAgence().getIdAgence())));
         return employeRepository.save(employe);
     }
 
@@ -40,6 +44,8 @@ public class EmployeServiceImpl implements IEmployeService {
         existing.setNom(employe.getNom());
         existing.setPrenom(employe.getPrenom());
         existing.setRole(employe.getRole());
+        existing.setAgence(agenceRepository.findById(employe.getAgence().getIdAgence())
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", employe.getAgence().getIdAgence())));
         return employeRepository.save(existing);
     }
 

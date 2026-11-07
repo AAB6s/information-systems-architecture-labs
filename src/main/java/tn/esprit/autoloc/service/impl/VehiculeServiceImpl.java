@@ -1,10 +1,15 @@
 package tn.esprit.autoloc.service.impl;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Vehicule;
+import tn.esprit.autoloc.domain.Equipement;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
+import tn.esprit.autoloc.repository.IAgenceRepository;
+import tn.esprit.autoloc.repository.IEquipementRepository;
 import tn.esprit.autoloc.repository.IVehiculeRepository;
 import tn.esprit.autoloc.service.IVehiculeService;
 
@@ -12,6 +17,8 @@ import tn.esprit.autoloc.service.IVehiculeService;
 @RequiredArgsConstructor
 public class VehiculeServiceImpl implements IVehiculeService {
     private final IVehiculeRepository vehiculeRepository;
+    private final IAgenceRepository agenceRepository;
+    private final IEquipementRepository equipementRepository;
 
     @Override
     public Vehicule create(Vehicule vehicule) {
@@ -19,6 +26,7 @@ public class VehiculeServiceImpl implements IVehiculeService {
             throw new IllegalArgumentException("Un nouveau vehicule ne doit pas avoir d'identifiant");
         }
         validate(vehicule);
+        resolveAssociations(vehicule);
         return vehiculeRepository.save(vehicule);
     }
 
@@ -43,6 +51,9 @@ public class VehiculeServiceImpl implements IVehiculeService {
         existing.setCategorie(vehicule.getCategorie());
         existing.setTarifJournalier(vehicule.getTarifJournalier());
         existing.setStatut(vehicule.getStatut());
+        resolveAssociations(vehicule);
+        existing.setAgence(vehicule.getAgence());
+        existing.setEquipements(vehicule.getEquipements());
         return vehiculeRepository.save(existing);
     }
 
@@ -58,5 +69,18 @@ public class VehiculeServiceImpl implements IVehiculeService {
         if (vehicule.getTarifJournalier() != null && vehicule.getTarifJournalier().signum() < 0) {
             throw new IllegalArgumentException("Le tarif journalier ne peut pas etre negatif");
         }
+    }
+
+    private void resolveAssociations(Vehicule vehicule) {
+        Long agenceId = vehicule.getAgence().getIdAgence();
+        vehicule.setAgence(agenceRepository.findById(agenceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Agence", agenceId)));
+        Set<Long> ids = vehicule.getEquipements().stream()
+                .map(Equipement::getIdEquipement).collect(Collectors.toSet());
+        Set<Equipement> equipements = ids.stream()
+                .map(id -> equipementRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Equipement", id)))
+                .collect(Collectors.toSet());
+        vehicule.setEquipements(equipements);
     }
 }

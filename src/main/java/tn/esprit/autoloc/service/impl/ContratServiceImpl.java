@@ -6,12 +6,14 @@ import org.springframework.stereotype.Service;
 import tn.esprit.autoloc.domain.Contrat;
 import tn.esprit.autoloc.exception.ResourceNotFoundException;
 import tn.esprit.autoloc.repository.IContratRepository;
+import tn.esprit.autoloc.repository.IReservationRepository;
 import tn.esprit.autoloc.service.IContratService;
 
 @Service
 @RequiredArgsConstructor
 public class ContratServiceImpl implements IContratService {
     private final IContratRepository contratRepository;
+    private final IReservationRepository reservationRepository;
 
     @Override
     public Contrat create(Contrat contrat) {
@@ -19,6 +21,8 @@ public class ContratServiceImpl implements IContratService {
             throw new IllegalArgumentException("Un nouveau contrat ne doit pas avoir d'identifiant");
         }
         validate(contrat);
+        contrat.setReservation(reservationRepository.findById(contrat.getReservation().getIdReservation())
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", contrat.getReservation().getIdReservation())));
         return contratRepository.save(contrat);
     }
 
@@ -40,6 +44,8 @@ public class ContratServiceImpl implements IContratService {
         existing.setDateSignature(contrat.getDateSignature());
         existing.setMontantTotal(contrat.getMontantTotal());
         existing.setValide(contrat.getValide());
+        existing.setReservation(reservationRepository.findById(contrat.getReservation().getIdReservation())
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", contrat.getReservation().getIdReservation())));
         return contratRepository.save(existing);
     }
 

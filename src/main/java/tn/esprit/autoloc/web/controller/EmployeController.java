@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import tn.esprit.autoloc.domain.Employe;
+import jakarta.validation.Valid;
+import tn.esprit.autoloc.web.dto.EmployeRequest;
+import tn.esprit.autoloc.web.dto.EmployeResponse;
+import tn.esprit.autoloc.web.mapper.EmployeMapper;
 import tn.esprit.autoloc.service.IEmployeService;
 
 @RestController
@@ -26,12 +29,13 @@ import tn.esprit.autoloc.service.IEmployeService;
 @Tag(name = "Employés", description = "Gestion des employés")
 public class EmployeController {
     private final IEmployeService service;
+    private final EmployeMapper mapper;
 
     @Operation(summary = "Lister les employés")
     @ApiResponse(responseCode = "200", description = "Liste retournée")
     @GetMapping
-    public List<Employe> findAll() {
-        return service.findAll();
+    public List<EmployeResponse> findAll() {
+        return service.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Operation(summary = "Consulter un employé")
@@ -40,8 +44,8 @@ public class EmployeController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @GetMapping("/{id}")
-    public Employe findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
-        return service.findById(id);
+    public EmployeResponse findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
+        return mapper.toResponse(service.findById(id));
     }
 
     @Operation(summary = "Créer un employé")
@@ -51,8 +55,8 @@ public class EmployeController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Employe create(@RequestBody Employe entite) {
-        return service.create(entite);
+    public EmployeResponse create(@Valid @RequestBody EmployeRequest demande) {
+        return mapper.toResponse(service.create(mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Modifier un employé")
@@ -62,9 +66,9 @@ public class EmployeController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @PutMapping("/{id}")
-    public Employe update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
-            @RequestBody Employe entite) {
-        return service.update(id, entite);
+    public EmployeResponse update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
+            @Valid @RequestBody EmployeRequest demande) {
+        return mapper.toResponse(service.update(id, mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Supprimer un employé")

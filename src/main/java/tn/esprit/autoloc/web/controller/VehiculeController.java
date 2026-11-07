@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import tn.esprit.autoloc.domain.Vehicule;
+import jakarta.validation.Valid;
+import tn.esprit.autoloc.web.dto.VehiculeRequest;
+import tn.esprit.autoloc.web.dto.VehiculeResponse;
+import tn.esprit.autoloc.web.mapper.VehiculeMapper;
 import tn.esprit.autoloc.service.IVehiculeService;
 
 @RestController
@@ -26,12 +29,13 @@ import tn.esprit.autoloc.service.IVehiculeService;
 @Tag(name = "Véhicules", description = "Gestion des véhicules")
 public class VehiculeController {
     private final IVehiculeService service;
+    private final VehiculeMapper mapper;
 
     @Operation(summary = "Lister les véhicules")
     @ApiResponse(responseCode = "200", description = "Liste retournée")
     @GetMapping
-    public List<Vehicule> findAll() {
-        return service.findAll();
+    public List<VehiculeResponse> findAll() {
+        return service.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Operation(summary = "Consulter un véhicule")
@@ -40,8 +44,8 @@ public class VehiculeController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @GetMapping("/{id}")
-    public Vehicule findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
-        return service.findById(id);
+    public VehiculeResponse findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
+        return mapper.toResponse(service.findById(id));
     }
 
     @Operation(summary = "Créer un véhicule")
@@ -51,8 +55,8 @@ public class VehiculeController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Vehicule create(@RequestBody Vehicule entite) {
-        return service.create(entite);
+    public VehiculeResponse create(@Valid @RequestBody VehiculeRequest demande) {
+        return mapper.toResponse(service.create(mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Modifier un véhicule")
@@ -62,9 +66,9 @@ public class VehiculeController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @PutMapping("/{id}")
-    public Vehicule update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
-            @RequestBody Vehicule entite) {
-        return service.update(id, entite);
+    public VehiculeResponse update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
+            @Valid @RequestBody VehiculeRequest demande) {
+        return mapper.toResponse(service.update(id, mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Supprimer un véhicule")

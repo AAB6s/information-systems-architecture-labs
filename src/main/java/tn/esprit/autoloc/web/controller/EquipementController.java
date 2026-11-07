@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import tn.esprit.autoloc.domain.Equipement;
+import jakarta.validation.Valid;
+import tn.esprit.autoloc.web.dto.EquipementRequest;
+import tn.esprit.autoloc.web.dto.EquipementResponse;
+import tn.esprit.autoloc.web.mapper.EquipementMapper;
 import tn.esprit.autoloc.service.IEquipementService;
 
 @RestController
@@ -26,12 +29,13 @@ import tn.esprit.autoloc.service.IEquipementService;
 @Tag(name = "Équipements", description = "Gestion des équipements")
 public class EquipementController {
     private final IEquipementService service;
+    private final EquipementMapper mapper;
 
     @Operation(summary = "Lister les équipements")
     @ApiResponse(responseCode = "200", description = "Liste retournée")
     @GetMapping
-    public List<Equipement> findAll() {
-        return service.findAll();
+    public List<EquipementResponse> findAll() {
+        return service.findAll().stream().map(mapper::toResponse).toList();
     }
 
     @Operation(summary = "Consulter un équipement")
@@ -40,8 +44,8 @@ public class EquipementController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @GetMapping("/{id}")
-    public Equipement findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
-        return service.findById(id);
+    public EquipementResponse findById(@Parameter(description = "Identifiant") @PathVariable("id") Long id) {
+        return mapper.toResponse(service.findById(id));
     }
 
     @Operation(summary = "Créer un équipement")
@@ -51,8 +55,8 @@ public class EquipementController {
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Equipement create(@RequestBody Equipement entite) {
-        return service.create(entite);
+    public EquipementResponse create(@Valid @RequestBody EquipementRequest demande) {
+        return mapper.toResponse(service.create(mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Modifier un équipement")
@@ -62,9 +66,9 @@ public class EquipementController {
         @ApiResponse(responseCode = "404", description = "Ressource introuvable")
     })
     @PutMapping("/{id}")
-    public Equipement update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
-            @RequestBody Equipement entite) {
-        return service.update(id, entite);
+    public EquipementResponse update(@Parameter(description = "Identifiant") @PathVariable("id") Long id,
+            @Valid @RequestBody EquipementRequest demande) {
+        return mapper.toResponse(service.update(id, mapper.toEntity(demande)));
     }
 
     @Operation(summary = "Supprimer un équipement")
