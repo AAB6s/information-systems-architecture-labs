@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import tn.esprit.autoloc.web.dto.VehiculeRequest;
 import tn.esprit.autoloc.web.dto.VehiculeResponse;
+import tn.esprit.autoloc.web.dto.VehiculeDTO;
+import org.springframework.web.bind.annotation.RequestParam;
 import tn.esprit.autoloc.web.mapper.VehiculeMapper;
 import tn.esprit.autoloc.service.IVehiculeService;
 
@@ -30,6 +32,20 @@ import tn.esprit.autoloc.service.IVehiculeService;
 public class VehiculeController {
     private final IVehiculeService service;
     private final VehiculeMapper mapper;
+
+    @Operation(summary = "Affecter un equipement a un vehicule")
+    @PutMapping("/{id}/equipements/{idEquipement}")
+    public VehiculeDTO affecterVehiculeAEquipement(@PathVariable("id") Long id,
+            @PathVariable Long idEquipement) {
+        return service.affecterVehiculeAEquipement(id, idEquipement);
+    }
+
+    @Operation(summary = "Affecter une maintenance a un vehicule")
+    @PostMapping("/maintenance")
+    public VehiculeDTO affecterMaintenanceAVehicule(@RequestParam String description,
+            @RequestParam String immatriculation) {
+        return service.affecterMaintenanceAVehicule(description, immatriculation);
+    }
 
     @Operation(summary = "Lister les véhicules")
     @ApiResponse(responseCode = "200", description = "Liste retournée")

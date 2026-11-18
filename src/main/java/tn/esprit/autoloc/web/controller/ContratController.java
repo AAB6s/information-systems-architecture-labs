@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import tn.esprit.autoloc.web.dto.ContratRequest;
 import tn.esprit.autoloc.web.dto.ContratResponse;
+import tn.esprit.autoloc.web.dto.ContratDTO;
+import java.time.LocalDate;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.format.annotation.DateTimeFormat;
 import tn.esprit.autoloc.web.mapper.ContratMapper;
 import tn.esprit.autoloc.service.IContratService;
 
@@ -30,6 +34,16 @@ import tn.esprit.autoloc.service.IContratService;
 public class ContratController {
     private final IContratService service;
     private final ContratMapper mapper;
+
+    @Operation(summary = "Affecter un contrat a une reservation par ses dates")
+    @PostMapping("/affectation")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ContratDTO affecterContratAReservation(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateSignature,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin) {
+        return service.affecterContratAReservation(dateSignature, dateDebut, dateFin);
+    }
 
     @Operation(summary = "Lister les contrats")
     @ApiResponse(responseCode = "200", description = "Liste retournée")

@@ -1,12 +1,5 @@
-# AutoLoc — TP06
+# AutoLoc — TP07
 
-DTO pour les réponses, validation des entrées et gestion des erreurs dans `GlobalExceptionHandler`.
+Atelier 7 : cinq services d'affectation Spring Data JPA avec DTO et controleurs REST.
 
-Pour tester sans MySQL :
-
-```bash
-mvn clean verify
-mvn spring-boot:run "-Dspring-boot.run.profiles=demo" "-Dspring-boot.run.arguments=--server.port=18081"
-```
-
-API : `http://localhost:18081/api` · [Collection Postman](postman/AutoLoc-TP06.postman_collection.json) · [Environnement](postman/tp06-demo.postman_environment.json)
+Tests : `mvn clean verify` (profil `demo` avec H2).

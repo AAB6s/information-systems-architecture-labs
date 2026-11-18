@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.hasItem;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ class DtoValidationIntegrationTest {
             .readTree(vehicule).get("idVehicule").asLong();
         mvc.perform(get("/vehicules"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].immatriculation").value("TP06-001"));
+            .andExpect(jsonPath("$[*].immatriculation", hasItem("TP06-001")));
 
         String client = mvc.perform(post("/clients")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import tn.esprit.autoloc.web.dto.ReservationRequest;
 import tn.esprit.autoloc.web.dto.ReservationResponse;
+import tn.esprit.autoloc.web.dto.ReservationResponseDTO;
+import tn.esprit.autoloc.web.dto.ReservationWithContratRequestDTO;
+import org.springframework.web.bind.annotation.RequestParam;
 import tn.esprit.autoloc.web.mapper.ReservationMapper;
 import tn.esprit.autoloc.service.IReservationService;
 
@@ -30,6 +33,21 @@ import tn.esprit.autoloc.service.IReservationService;
 public class ReservationController {
     private final IReservationService service;
     private final ReservationMapper mapper;
+
+    @Operation(summary = "Affecter une reservation a un client")
+    @PutMapping("/{id}/client")
+    public ReservationResponseDTO affecterReservationAClient(@PathVariable("id") Long id,
+            @RequestParam String nom, @RequestParam String prenom) {
+        return service.affecterReservationAClient(id, nom, prenom);
+    }
+
+    @Operation(summary = "Creer une reservation et son contrat associe")
+    @PostMapping("/avec-contrat")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReservationResponseDTO creerReservationEtContratAssocie(
+            @Valid @RequestBody ReservationWithContratRequestDTO requestDTO) {
+        return service.creerReservationEtContratAssocie(requestDTO);
+    }
 
     @Operation(summary = "Lister les réservations")
     @ApiResponse(responseCode = "200", description = "Liste retournée")
